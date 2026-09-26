@@ -66,10 +66,9 @@ def indices_url(dt: date) -> str:
     )
 
 def wk52_url(dt: date) -> str:
-    mon = dt.strftime("%b").upper()
     return (
         f"https://nsearchives.nseindia.com/products/content/"
-        f"CM_52_wk_High_low_{dt.strftime('%d')}-{mon}-{dt.strftime('%Y')}.csv"
+        f"CM_52_wk_High_low_{dt.strftime('%d%m%Y')}.csv"
     )
 
 BULK_URL  = "https://nsearchives.nseindia.com/content/equities/bulk.csv"
@@ -186,8 +185,7 @@ def main():
                 fh.write(idx_csv)
 
     # ── 3. 52-week H/L ──────────────────────────────────────────────────────
-    mon_upper  = today.strftime("%b").upper()
-    wk52_fname  = f"CM_52_wk_High_low_{today.strftime('%d')}-{mon_upper}-{today.strftime('%Y')}.csv"
+    wk52_fname  = f"CM_52_wk_High_low_{today.strftime('%d%m%Y')}.csv"
     wk52_target = os.path.join(REPO_DIR, "wk52", wk52_fname)
     wk52_csv    = None
 
