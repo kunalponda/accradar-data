@@ -16,3 +16,20 @@
 2026-09-26 16:15:09  INFO  === accradar_sync  2026-09-26 ===
 2026-09-26 16:15:09  INFO    bhavcopy: not yet published (404) — will retry at next run
 2026-09-26 16:15:09  WARNING  Bhavcopy not available yet — exiting silently.
+2026-09-26 16:15:23  INFO  === accradar_sync  2026-09-25 ===
+2026-09-26 16:15:23  INFO    bhavcopy: 396,933 bytes  OK
+2026-09-26 16:15:24  INFO    indices: 17,285 bytes  OK
+2026-09-26 16:15:24  INFO    wk52: not yet published (404) — will retry at next run
+2026-09-26 16:15:24  INFO    bulk deals: 22,337 bytes  OK
+2026-09-26 16:15:25  INFO    block deals: 671 bytes  OK
+2026-09-26 16:15:25  INFO    bhavcopy_index.json: 296 files indexed
+2026-09-26 16:15:25  INFO    dashboard-data.json: 4 files packaged
+2026-09-26 16:15:27  ERROR    git error: git push failed:
+To https://github.com/kunalponda/accradar-data.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://github.com/kunalponda/accradar-data.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
