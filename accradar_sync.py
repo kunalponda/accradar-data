@@ -67,7 +67,7 @@ def indices_url(dt: date) -> str:
 
 def wk52_url(dt: date) -> str:
     return (
-        f"https://nsearchives.nseindia.com/products/content/"
+        f"https://nsearchives.nseindia.com/content/"
         f"CM_52_wk_High_low_{dt.strftime('%d%m%Y')}.csv"
     )
 
