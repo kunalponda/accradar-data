@@ -75,3 +75,17 @@ hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 2026-09-26 17:54:13  INFO    git: pushed  OK
 2026-09-26 17:54:13  INFO  === done ===
 
+2026-09-26 18:14:19  INFO  === accradar_sync  2026-09-25 ===
+2026-09-26 18:14:19  INFO    bhavcopy: already on disk — skipping fetch
+2026-09-26 18:14:19  INFO    indices: already on disk — skipping fetch
+2026-09-26 18:14:20  INFO    wk52: 320,069 bytes  OK
+2026-09-26 18:14:21  INFO    bulk deals: 22,337 bytes  OK
+2026-09-26 18:14:21  INFO    block deals: 671 bytes  OK
+2026-09-26 18:14:21  INFO    bhavcopy_index.json: 296 files indexed
+2026-09-26 18:14:21  INFO    dashboard-data.json: 5 files packaged
+2026-09-26 18:14:24  INFO    git: pushed  OK
+2026-09-26 18:14:24  INFO  === done ===
+
+2026-09-26 21:48:44  INFO  === accradar_sync  2026-09-26 ===
+2026-09-26 21:48:44  INFO    bhavcopy: not yet published (404) — will retry at next run
+2026-09-26 21:48:44  WARNING  Bhavcopy not available yet — exiting silently.
