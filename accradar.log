@@ -123,3 +123,20 @@ hint: have locally. This is usually caused by another repository pushing to
 hint: the same ref. If you want to integrate the remote changes, use
 hint: 'git pull' before pushing again.
 hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+2026-09-28 21:07:24  INFO  === accradar_sync  2026-09-28 ===
+2026-09-28 21:07:24  INFO    bhavcopy: already on disk — skipping fetch
+2026-09-28 21:07:24  INFO    indices: already on disk — skipping fetch
+2026-09-28 21:07:24  INFO    wk52: already on disk — skipping fetch
+2026-09-28 21:07:24  INFO    bulk deals: 17,607 bytes  OK
+2026-09-28 21:07:24  INFO    block deals: 436 bytes  OK
+2026-09-28 21:07:24  INFO    bhavcopy_index.json: 298 files indexed
+2026-09-28 21:07:24  INFO    dashboard-data.json: 5 files packaged
+2026-09-28 21:07:27  ERROR    git error: git push failed:
+To https://github.com/kunalponda/accradar-data.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://github.com/kunalponda/accradar-data.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
