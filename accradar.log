@@ -168,3 +168,14 @@ hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 2026-09-28 21:16:20  INFO    git: pushed  OK
 2026-09-28 21:16:20  INFO  === done ===
 
+2026-09-29 20:05:03  INFO  === accradar_sync  2026-09-29 ===
+2026-09-29 20:05:03  INFO    bhavcopy: 399,760 bytes  OK
+2026-09-29 20:05:04  INFO    indices: 17,201 bytes  OK
+2026-09-29 20:05:05  INFO    wk52: 324,914 bytes  OK
+2026-09-29 20:05:05  INFO    bulk deals: 18,309 bytes  OK
+2026-09-29 20:05:05  INFO    block deals: 988 bytes  OK
+2026-09-29 20:05:05  INFO    bhavcopy_index.json: 299 files indexed
+2026-09-29 20:05:05  INFO    dashboard-data.json: 5 files packaged
+2026-09-29 20:05:11  INFO    git: pushed  OK
+2026-09-29 20:05:11  INFO  === done ===
+
