@@ -190,3 +190,20 @@ hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 2026-09-30 20:05:09  INFO    git: pushed  OK
 2026-09-30 20:05:09  INFO  === done ===
 
+2026-10-01 20:05:03  INFO  === accradar_sync  2026-10-01 ===
+2026-10-01 20:05:03  INFO    bhavcopy: 401,205 bytes  OK
+2026-10-01 20:05:03  INFO    indices: 15,934 bytes  OK
+2026-10-01 20:05:04  INFO    wk52: 320,863 bytes  OK
+2026-10-01 20:05:05  INFO    bulk deals: 14,705 bytes  OK
+2026-10-01 20:05:05  INFO    block deals: 562 bytes  OK
+2026-10-01 20:05:05  INFO    bhavcopy_index.json: 301 files indexed
+2026-10-01 20:05:05  INFO    dashboard-data.json: 5 files packaged
+2026-10-01 20:05:08  ERROR    git error: git push failed:
+To https://github.com/kunalponda/accradar-data.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://github.com/kunalponda/accradar-data.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
