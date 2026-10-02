@@ -227,3 +227,34 @@ hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 2026-10-02 08:58:37  INFO  === accradar_sync  2026-10-02 ===
 2026-10-02 08:58:38  INFO    bhavcopy: not yet published (404) — will retry at next run
 2026-10-02 08:58:38  WARNING  Bhavcopy not available yet — exiting silently.
+2026-10-02 09:00:47  INFO  === accradar_sync  2026-10-01 ===
+2026-10-02 09:00:47  INFO    bhavcopy: already on disk — skipping fetch
+2026-10-02 09:00:47  INFO    indices: already on disk — skipping fetch
+2026-10-02 09:00:47  INFO    wk52: already on disk — skipping fetch
+2026-10-02 09:00:47  INFO    bulk deals: 14,705 bytes  OK
+2026-10-02 09:00:47  INFO    block deals: 562 bytes  OK
+2026-10-02 09:00:47  INFO    bhavcopy_index.json: 301 files indexed
+2026-10-02 09:00:47  INFO    seed.json.gz: rebuilding from 301 sessions…
+2026-10-02 09:00:52  WARNING    seed.json.gz: no data parsed — skipping
+2026-10-02 09:00:52  INFO    dashboard-data.json: 5 files packaged
+2026-10-02 09:00:53  ERROR    git: pull --rebase failed — git pull --rebase --autostash failed:
+fatal: It seems that there is already a rebase-merge directory, and
+I wonder if you are in the middle of another rebase.  If that is the
+case, please try
+	git rebase (--continue | --abort | --skip)
+If that is not the case, please
+	rm -fr ".git/rebase-merge"
+and run me again.  I am stopping in case you still have something
+valuable there.
+2026-10-02 09:00:53  ERROR    git: aborting rebase and exiting
+2026-10-02 09:03:31  INFO  === accradar_sync  2026-10-02 ===
+2026-10-02 09:03:31  INFO    bhavcopy: not yet published (404) — will retry at next run
+2026-10-02 09:03:31  WARNING  Bhavcopy not available yet — exiting silently.
+2026-10-02 09:09:13  INFO  === accradar_sync  2026-10-01 ===
+2026-10-02 09:09:13  INFO    bhavcopy: already on disk — skipping fetch
+2026-10-02 09:09:13  INFO    indices: already on disk — skipping fetch
+2026-10-02 09:09:13  INFO    wk52: already on disk — skipping fetch
+2026-10-02 09:09:13  INFO    bulk deals: 14,705 bytes  OK
+2026-10-02 09:09:13  INFO    block deals: 562 bytes  OK
+2026-10-02 09:09:13  INFO    bhavcopy_index.json: 301 files indexed
+2026-10-02 09:09:13  INFO    dashboard-data.json: 5 files packaged
