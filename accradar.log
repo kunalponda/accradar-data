@@ -224,3 +224,6 @@ hint: have locally. This is usually caused by another repository pushing to
 hint: the same ref. If you want to integrate the remote changes, use
 hint: 'git pull' before pushing again.
 hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+2026-10-02 08:58:37  INFO  === accradar_sync  2026-10-02 ===
+2026-10-02 08:58:38  INFO    bhavcopy: not yet published (404) — will retry at next run
+2026-10-02 08:58:38  WARNING  Bhavcopy not available yet — exiting silently.
