@@ -7,20 +7,14 @@ Run via Windows Task Scheduler, daily at 8:05 PM.
 Fetches 5 NSE files -> saves them to the repo -> writes dashboard-data.json
 and bhavcopy_index.json -> git push.
 
-Also regenerates seed.json.gz every 20 sessions (or when forced with --reseed).
-seed.json.gz and mahist.json.gz are fetched by the dashboard on first open
-instead of being baked into the HTML (v6.35+).
-
 Usage:
   python accradar_sync.py                  # fetch today's files
   python accradar_sync.py --date 26092026  # fetch a specific date (DDMMYYYY)
-  python accradar_sync.py --reseed         # force regenerate seed.json.gz now
 """
 
 import os
 import sys
 import json
-import gzip
 import subprocess
 import logging
 from datetime import datetime, date, timezone
@@ -28,17 +22,11 @@ from datetime import datetime, date, timezone
 import requests
 
 # ── config ─────────────────────────────────────────────────────────────────────
-REPO_DIR    = os.path.dirname(os.path.abspath(__file__))
+REPO_DIR    = os.path.dirname(os.path.abspath(__file__))   # C:\AccRadar\accradar-data
 LOG_FILE    = os.path.join(REPO_DIR, "accradar.log")
 DATA_JSON   = os.path.join(REPO_DIR, "dashboard-data.json")
 INDEX_JSON  = os.path.join(REPO_DIR, "bhavcopy_index.json")
 BHAV_DIR    = os.path.join(REPO_DIR, "bhavcopy")
-SEED_GZ     = os.path.join(REPO_DIR, "seed.json.gz")
-SEED_META   = os.path.join(REPO_DIR, "seed_meta.json")   # tracks last-seeded count
-
-# Regenerate seed every N new bhavcopy sessions added since last seed build.
-# 20 sessions ≈ 1 calendar month of trading days.
-SEED_REFRESH_INTERVAL = 20
 
 HEADERS = {
     "User-Agent": (
@@ -124,7 +112,9 @@ def git(*args):
 def write_bhav_index():
     """
     Scans the bhavcopy/ folder and writes bhavcopy_index.json.
-    Format: { "files": [...], "count": N, "updated": ISO }
+    Format: { "files": ["sec_bhavdata_full_DDMMYYYY.csv", ...], "count": N, "updated": ISO }
+    Dashboard reads this to know which historical sessions are available for backfill.
+    Files are listed in chronological order (oldest first).
     """
     os.makedirs(BHAV_DIR, exist_ok=True)
     files = sorted([
@@ -139,162 +129,19 @@ def write_bhav_index():
     with open(INDEX_JSON, "w", encoding="utf-8") as fh:
         json.dump(index, fh, separators=(",", ":"))
     log_and_print(f"  bhavcopy_index.json: {len(files)} files indexed")
-    return len(files)
-
-
-# ── seed builder ───────────────────────────────────────────────────────────────
-def _parse_bhav_csv(raw: bytes) -> dict:
-    """
-    Parse sec_bhavdata_full CSV bytes into {SYM: [vol, deliv_pct, close, pclose, open, high, low, 0, 0]}
-    Columns: SYMBOL,SERIES,OPEN,HIGH,LOW,CLOSE,LAST,PREVCLOSE,TOTQTY,TOTVAL,TIMESTAMP,TRADES,ISIN,DELIV_QTY,DELIV_PCT
-    Indices:  0      1      2    3    4   5     6    7         8      9      10        11     12   13        14
-    """
-    day = {}
-    try:
-        text = raw.decode("utf-8", errors="replace")
-        lines = text.splitlines()
-        if not lines:
-            return day
-        # Skip header
-        for line in lines[1:]:
-            parts = line.split(",")
-            if len(parts) < 15:
-                continue
-            sym    = parts[0].strip()
-            series = parts[1].strip()
-            if series != "EQ":
-                continue
-            try:
-                vol    = int(parts[8])   if parts[8].strip()  else 0
-                close  = float(parts[5]) if parts[5].strip()  else None
-                pclose = float(parts[7]) if parts[7].strip()  else None
-                open_  = float(parts[2]) if parts[2].strip()  else None
-                high   = float(parts[3]) if parts[3].strip()  else None
-                low    = float(parts[4]) if parts[4].strip()  else None
-                dq     = parts[13].strip()
-                dp     = float(parts[14]) if parts[14].strip() else None
-                nt     = int(parts[11])   if parts[11].strip() else 0
-                if dp is None and dq and vol:
-                    try:
-                        dp = float(dq) / vol * 100
-                    except (ValueError, ZeroDivisionError):
-                        dp = None
-                # Format: [vol, deliv_pct, close, pclose, open, high, low, 0, 0]
-                # Matches rec() field map in dashboard: [0]=vol,[1]=deliv%,[2]=close,[3]=open,[5]=high,[6]=low
-                day[sym] = [vol, dp, close, pclose, open_, high, low, nt]
-            except (ValueError, IndexError):
-                continue
-    except Exception:
-        pass
-    return day
-
-
-def build_seed_gz(force: bool = False) -> bool:
-    """
-    Build seed.json.gz from all bhavcopy CSVs on disk.
-    Only rebuilds if session count has grown by SEED_REFRESH_INTERVAL since last build.
-    Returns True if seed was rebuilt.
-    """
-    files = sorted([
-        f for f in os.listdir(BHAV_DIR)
-        if f.startswith("sec_bhavdata_full_") and f.endswith(".csv")
-    ])
-    n = len(files)
-
-    # Read last-seeded count
-    last_seeded = 0
-    if os.path.exists(SEED_META):
-        try:
-            with open(SEED_META) as fh:
-                last_seeded = json.load(fh).get("seeded_count", 0)
-        except Exception:
-            pass
-
-    if not force and (n - last_seeded) < SEED_REFRESH_INTERVAL:
-        log_and_print(
-            f"  seed.json.gz: {n - last_seeded} new sessions since last build "
-            f"(threshold {SEED_REFRESH_INTERVAL}) — skipping"
-        )
-        return False
-
-    log_and_print(f"  seed.json.gz: rebuilding from {n} sessions…")
-
-    # Build compact dataset: {date: {sym: [fields...]}}
-    # Use symbol index for compression: syms list + integer indices in data
-    sym_index = {}   # sym -> int
-    syms_list = []
-    dataset = {}     # date_str -> flat array [symIdx, f0, f1, ..., f8, symIdx, ...]
-
-    for fname in files:
-        # Extract date from filename: sec_bhavdata_full_DDMMYYYY.csv
-        try:
-            ddmmyyyy = fname.replace("sec_bhavdata_full_", "").replace(".csv", "")
-            dt = datetime.strptime(ddmmyyyy, "%d%m%Y")
-            date_str = dt.strftime("%Y-%m-%d")
-        except ValueError:
-            continue
-
-        fpath = os.path.join(BHAV_DIR, fname)
-        try:
-            with open(fpath, "rb") as fh:
-                raw = fh.read()
-        except OSError:
-            continue
-
-        day = _parse_bhav_csv(raw)
-        if not day:
-            continue
-
-        flat = []
-        for sym, fields in day.items():
-            if sym not in sym_index:
-                sym_index[sym] = len(syms_list)
-                syms_list.append(sym)
-            flat.append(sym_index[sym])
-            flat.extend(fields)
-        dataset[date_str] = flat
-
-    if not dataset:
-        log_and_print("  seed.json.gz: no data parsed — skipping", "warning")
-        return False
-
-    payload = {"syms": syms_list, "d": dataset}
-    json_bytes = json.dumps(payload, separators=(",", ":")).encode("utf-8")
-    gz_bytes = gzip.compress(json_bytes, compresslevel=9)
-
-    with open(SEED_GZ, "wb") as fh:
-        fh.write(gz_bytes)
-
-    # Save metadata
-    with open(SEED_META, "w") as fh:
-        json.dump({
-            "seeded_count": n,
-            "built_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-            "sessions": n,
-            "symbols": len(syms_list),
-            "gz_bytes": len(gz_bytes),
-        }, fh, indent=2)
-
-    log_and_print(
-        f"  seed.json.gz: {n} sessions, {len(syms_list)} symbols → "
-        f"{len(gz_bytes)/1024:.0f} KB  OK"
-    )
-    return True
 
 
 # ── main ───────────────────────────────────────────────────────────────────────
 def main():
-    # ── parse arguments ──────────────────────────────────────────────────────
-    today   = date.today()
-    args    = sys.argv[1:]
-    reseed  = "--reseed" in args
-
-    if "--date" in args:
-        idx = args.index("--date")
+    # ── parse optional --date DDMMYYYY argument ──────────────────────────────
+    today = date.today()
+    args = sys.argv[1:]
+    if '--date' in args:
+        idx = args.index('--date')
         if idx + 1 < len(args):
             raw = args[idx + 1]
             try:
-                today = datetime.strptime(raw, "%d%m%Y").date()
+                today = datetime.strptime(raw, '%d%m%Y').date()
             except ValueError:
                 print(f"ERROR: --date must be DDMMYYYY, got '{raw}'")
                 sys.exit(1)
@@ -373,13 +220,7 @@ def main():
     # ── 6. Write bhavcopy_index.json ────────────────────────────────────────
     write_bhav_index()
 
-    # ── 7. Rebuild seed.json.gz if due (every 20 sessions) ──────────────────
-    try:
-        build_seed_gz(force=reseed)
-    except Exception as exc:
-        log_and_print(f"  seed.json.gz: build error — {exc}", "warning")
-
-    # ── 8. Write dashboard-data.json (today's files only) ───────────────────
+    # ── 7. Write dashboard-data.json (today's files only) ───────────────────
     payload = {
         "generated": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "date": today.isoformat(),
@@ -403,7 +244,9 @@ def main():
 
     log_and_print(f"  dashboard-data.json: {len(payload['files'])} files packaged")
 
-    # ── 9. git add -> commit -> pull --rebase -> push ────────────────────────
+    # ── 8. git add -> commit -> pull --rebase -> push ────────────────────────
+    # Close log handlers before git ops — Windows locks open files during rebase
+    logging.shutdown()
     try:
         git("add", ".")
         status = git("status", "--porcelain")
@@ -415,6 +258,11 @@ def main():
         commit_msg = f"nightly sync {today.isoformat()}"
         git("commit", "-m", commit_msg)
 
+        # Pull with rebase before pushing to handle any remote-ahead divergence.
+        # This is the root cause of the recurring "fetch first" rejections seen
+        # in the log — manual edits on GitHub web UI leave the remote ahead.
+        # --rebase keeps history linear (no merge commits on data files).
+        # --autostash protects any accidental uncommitted local changes.
         try:
             git("pull", "--rebase", "--autostash")
         except RuntimeError as pull_exc:
