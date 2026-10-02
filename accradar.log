@@ -258,3 +258,13 @@ valuable there.
 2026-10-02 09:09:13  INFO    block deals: 562 bytes  OK
 2026-10-02 09:09:13  INFO    bhavcopy_index.json: 301 files indexed
 2026-10-02 09:09:13  INFO    dashboard-data.json: 5 files packaged
+2026-10-02 09:09:14  ERROR    git: pull --rebase failed — git pull --rebase --autostash failed:
+fatal: It seems that there is already a rebase-merge directory, and
+I wonder if you are in the middle of another rebase.  If that is the
+case, please try
+	git rebase (--continue | --abort | --skip)
+If that is not the case, please
+	rm -fr ".git/rebase-merge"
+and run me again.  I am stopping in case you still have something
+valuable there.
+2026-10-02 09:09:14  ERROR    git: aborting rebase and exiting
