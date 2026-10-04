@@ -12,6 +12,8 @@ Usage:
   python accradar_sync.py --date 26092026  # fetch a specific date (DDMMYYYY)
 """
 
+import csv
+import io
 import os
 import sys
 import json
@@ -221,11 +223,32 @@ def main():
     write_bhav_index()
 
     # ── 7. Write dashboard-data.json (today's files only) ───────────────────
+
+    # Extract Nifty 500 closing price from ind_close_all so the dashboard can
+    # keep IDX500 current without re-embedding the constant each session.
+    nifty500_close = None
+    if idx_csv:
+        try:
+            reader = csv.DictReader(io.StringIO(idx_csv.decode("utf-8", errors="replace")))
+            for row in reader:
+                if "NIFTY 500" in row.get("Index Name", "").upper():
+                    nifty500_close = float(row["Closing Index Value"].strip())
+                    break
+        except Exception as e:
+            log_and_print(f"  idx500 extract: {e}", "warning")
+
     payload = {
         "generated": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "date": today.isoformat(),
         "files": {}
     }
+
+    # idx500: single-date dict so dashboard can Object.assign(IDX500, payload.idx500)
+    if nifty500_close is not None:
+        payload["idx500"] = {today.isoformat(): nifty500_close}
+        log_and_print(f"  idx500: Nifty 500 close {nifty500_close} for {today.isoformat()}")
+    else:
+        log_and_print("  idx500: Nifty 500 close not found in ind_close_all", "warning")
 
     def add_file(name, data):
         if data is not None:
